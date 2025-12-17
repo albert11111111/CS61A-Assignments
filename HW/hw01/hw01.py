@@ -13,9 +13,9 @@ def a_plus_abs_b(a, b):
     3
     """
     if b < 0:
-        f = _____
+        f = sub
     else:
-        f = _____
+        f = add
     return f(a, b)
 
 def a_plus_abs_b_syntax_check():
@@ -42,7 +42,9 @@ def two_of_three(i, j, k):
     >>> two_of_three(5, 5, 5)
     50
     """
-    return _____
+    return i**2 + j**2 + k**2 - max(i, j, k)**2
+
+
 
 def two_of_three_syntax_check():
     """Check that your two_of_three code consists of nothing but a return statement.
@@ -65,7 +67,10 @@ def largest_factor(n):
     >>> largest_factor(13) # factor is 1 since 13 is prime
     1
     """
-    "*** YOUR CODE HERE ***"
+    for i in range(n-1, 1, -1):
+        if n % i == 0:
+            return i    # if i is a factor of n, return i
+    return 1          # if no factor is found, return 1
 
 
 def hailstone(n):
@@ -87,5 +92,16 @@ def hailstone(n):
     >>> b
     1
     """
-    "*** YOUR CODE HERE ***"
-
+    print(int(n))
+    if n == 1:
+        return 1  # 基础情况：1 的长度就是 1
+    
+    # 递归步骤
+    if n % 2 == 0:
+        next_n = n // 2
+    else:
+        next_n = 3 * n + 1
+        
+    # 关键点：这一层的长度 = 1（代表当前的 n） + 后面所有步骤的长度
+    count = 1 + hailstone(next_n)
+    return count
