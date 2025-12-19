@@ -21,13 +21,17 @@ def roll_dice(num_rolls, dice=six_sided):
     assert type(num_rolls) == int, 'num_rolls must be an integer.'
     assert num_rolls > 0, 'Must roll at least once.'
     # BEGIN PROBLEM 1
-    roll = dice()  # Call dice() to get one roll result
-    if roll == 1:
+    sum = 0
+    if_one = False
+    for _ in range(num_rolls):
+        roll = dice()
+        sum += roll
+        if roll == 1:
+            if_one = True
+    if if_one:
         return 1
-    if num_rolls == 1:
-        return roll
     else:
-        return roll + roll_dice(num_rolls - 1, dice)
+        return sum
     # END PROBLEM 1
 
 
@@ -39,7 +43,7 @@ def boar_brawl(player_score, opponent_score):
 
     """
     # BEGIN PROBLEM 2
-    "*** YOUR CODE HERE ***"
+    return max(3 * abs(player_score % 10 - (opponent_score // 10) % 10 ), 1)
     # END PROBLEM 2
 
 
