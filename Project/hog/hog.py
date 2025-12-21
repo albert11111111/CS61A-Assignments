@@ -61,7 +61,10 @@ def take_turn(num_rolls, player_score, opponent_score, dice=six_sided):
     assert num_rolls >= 0, 'Cannot roll a negative number of dice in take_turn.'
     assert num_rolls <= 10, 'Cannot roll more than 10 dice.'
     # BEGIN PROBLEM 3
-    "*** YOUR CODE HERE ***"
+    if num_rolls == 0:
+        return boar_brawl(player_score, opponent_score)
+    else:
+        return roll_dice(num_rolls, dice)
     # END PROBLEM 3
 
 
@@ -86,13 +89,24 @@ def is_prime(n):
 def num_factors(n):
     """Return the number of factors of N, including 1 and N itself."""
     # BEGIN PROBLEM 4
-    "*** YOUR CODE HERE ***"
+    count = 0
+    for i in range(n, 0, -1):
+        if n % i ==0:
+            count += 1
+    return count
+
     # END PROBLEM 4
 
 def sus_points(score):
     """Return the new score of a player taking into account the Sus Fuss rule."""
     # BEGIN PROBLEM 4
-    "*** YOUR CODE HERE ***"
+    # assert score <= GOAL, 'already win'
+    if num_factors(score) == 3 or num_factors(score) == 4:
+        for i in range(score + 1, 1000, 1):
+            if is_prime(i):
+                return i
+    else:
+        return score
     # END PROBLEM 4
 
 def sus_update(num_rolls, player_score, opponent_score, dice=six_sided):
@@ -100,7 +114,7 @@ def sus_update(num_rolls, player_score, opponent_score, dice=six_sided):
     PLAYER_SCORE and then rolls NUM_ROLLS DICE, *including* Sus Fuss.
     """
     # BEGIN PROBLEM 4
-    "*** YOUR CODE HERE ***"
+    return sus_points(simple_update(num_rolls, player_score, opponent_score, dice))
     # END PROBLEM 4
 
 
@@ -139,7 +153,13 @@ def play(strategy0, strategy1, update,
     """
     who = 0  # Who is about to take a turn, 0 (first) or 1 (second)
     # BEGIN PROBLEM 5
-    "*** YOUR CODE HERE ***"
+    while score0 < goal and score1 < goal:
+        if who == 0:
+            score0 = update(strategy0(score0, score1), score0, score1, dice)
+            who = 1
+        else:
+            score1 = update(strategy1(score1, score0), score1, score0, dice)
+            who = 0
     # END PROBLEM 5
     return score0, score1
 
@@ -164,7 +184,7 @@ def always_roll(n):
     """
     assert n >= 0 and n <= 10
     # BEGIN PROBLEM 6
-    "*** YOUR CODE HERE ***"
+    
     # END PROBLEM 6
 
 
