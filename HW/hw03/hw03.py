@@ -24,7 +24,12 @@ def num_eights(n):
     ...       ['Assign', 'AnnAssign', 'AugAssign', 'NamedExpr', 'For', 'While'])
     True
     """
-    "*** YOUR CODE HERE ***"
+    if n == 0:
+        return 0
+    if n % 10 == 8:
+        return 1 + num_eights(n // 10)
+    else:
+        return num_eights(n // 10)
 
 
 def digit_distance(n):
@@ -46,7 +51,10 @@ def digit_distance(n):
     ...       ['For', 'While'])
     True
     """
-    "*** YOUR CODE HERE ***"
+    if n < 10:
+        return 0
+    else:
+        return abs((n % 10) - (n // 10) % 10) + digit_distance(n // 10)
 
 
 def interleaved_sum(n, odd_func, even_func):
@@ -70,8 +78,49 @@ def interleaved_sum(n, odd_func, even_func):
     >>> check(HW_SOURCE_FILE, 'interleaved_sum', ['BitAnd', 'BitOr', 'BitXor']) # ban bitwise operators, don't worry about these if you don't know what they are
     True
     """
-    "*** YOUR CODE HERE ***"
+    def compute_odd(k):
+        """处理第 k 项（已知 k 是奇数）"""
+        if k > n:
+            return 0
+        # 奇数项的结果 + 下一项（偶数项）的递归
+        return odd_func(k) + compute_even(k + 1)
 
+    def compute_even(k):
+        """处理第 k 项（已知 k 是偶数）"""
+        if k > n:
+            return 0
+        # 偶数项的结果 + 下一项（奇数项）的递归
+        return even_func(k) + compute_odd(k + 1)
+
+    # 从 1 开始，1 是奇数，所以调用 compute_odd
+    return compute_odd(1)
+
+
+def interleaved_sum(n, odd_func, even_func):
+    # 如果当前项是奇数位，则加 odd_func，下一项(k-1)就是偶数位
+    def k_is_odd(k):
+        if k == 0: return 0
+        return odd_func(k) + k_is_even(k - 1)
+
+    # 如果当前项是偶数位，则加 even_func，下一项(k-1)就是奇数位
+    def k_is_even(k):
+        if k == 0: return 0
+        return even_func(k) + k_is_odd(k - 1)
+
+    # 这里的难点依然是：入口应该是哪个？
+    # 我们可以再写一个简单的互递归来判断 n 的奇偶
+    def is_n_even(k):
+        if k == 0: return True
+        return is_n_odd(k - 1)
+    
+    def is_n_odd(k):
+        if k == 0: return False
+        return is_n_even(k - 1)
+
+    if is_n_even(n):
+        return k_is_even(n)
+    else:
+        return k_is_odd(n)
 
 def next_smaller_dollar(bill):
     """Returns the next smaller bill in order."""
@@ -142,7 +191,36 @@ def count_dollars_upward(total):
     >>> check(HW_SOURCE_FILE, 'count_dollars_upward', ['While', 'For'])
     True
     """
-    "*** YOUR CODE HERE ***"
+
+    def next_bill(bill):
+        """根据当前面额返回下一个更大的美元面额"""
+        if bill == 1: return 5
+        if bill == 5: return 10
+        if bill == 10: return 20
+        if bill == 20: return 50
+        if bill == 50: return 100
+        return None # 没有更大的面额了
+
+    def count_helper(amount, bill):
+        # 基准情况 1：刚好凑齐，算作 1 种有效方式
+        if amount == 0:
+            return 1
+        # 基准情况 2：金额变负数，或者没有可用面额了，此路不通
+        if amount < 0 or bill is None:
+            return 0
+        
+        # 递归路径 1：使用至少一张当前的 bill
+        # 保持 bill 不变，因为还可以继续用这张面额
+        use_bill = count_helper(amount - bill, bill)
+        
+        # 递归路径 2：不再使用当前的 bill
+        # 换成下一个更大的面额
+        skip_bill = count_helper(amount, next_bill(bill))
+        
+        return use_bill + skip_bill
+
+    # 从金额 total 和最小的面额 $1 开始计算
+    return count_helper(total, 1)
 
 
 def print_move(origin, destination):
