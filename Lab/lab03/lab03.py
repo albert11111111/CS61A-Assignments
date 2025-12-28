@@ -14,7 +14,9 @@ def print_if(s, f):
     None
     """
     for x in s:
-        "*** YOUR CODE HERE ***"
+        if f(x):
+            print(x)
+    return None
 
 
 def close(s, k):
