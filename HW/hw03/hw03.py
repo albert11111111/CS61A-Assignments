@@ -255,7 +255,13 @@ def move_stack(n, start, end):
     Move the top disk from rod 1 to rod 3
     """
     assert 1 <= start <= 3 and 1 <= end <= 3 and start != end, "Bad start/end"
-    "*** YOUR CODE HERE ***"
+    helper = 6 - start - end
+    if n == 1:
+        print_move(start, end)
+    else:
+        move_stack(n - 1, start, helper)
+        move_stack(1, start, end)
+        move_stack(n - 1, helper, end)
 
 
 from operator import sub, mul
@@ -271,5 +277,30 @@ def make_anonymous_factorial():
     ...     ['Assign', 'AnnAssign', 'AugAssign', 'NamedExpr', 'FunctionDef', 'Recursion'])
     True
     """
-    return 'YOUR_EXPRESSION_HERE'
+    return (lambda f: f(f))(lambda f: lambda n: 1 if n == 0 else n * f(f)(n - 1))
 
+# def make_anonymous_factorial():
+#     # 第一步：定义逻辑模板 (等同于 lambda f: lambda n: ...)
+#     # 这个函数接收一个“函数 f”，返回一个“能算阶乘的函数”
+#     def generator(f):
+#         def compute_factorial(n):
+#             if n == 0:
+#                 return 1
+#             else:
+#                 # 关键点：它通过执行 f(f) 来“制造”出下一层的自己
+#                 recursive_step = f(f) 
+#                 return n * recursive_step(n - 1) # generator(generator) → compute_factorial
+#         return compute_factorial
+
+#     # 第二步：定义启动器 (等同于 lambda f: f(f))
+#     # 它的作用是让一个函数“吃掉”它自己
+#     def launcher(func):
+#         return func(func)
+
+#     # 第三步：组合并运行
+#     # 返回启动器作用于模板后的结果
+#     return launcher(generator)
+
+# # 测试
+# fact = make_anonymous_factorial()
+# print(fact(5)) # 输出 120
