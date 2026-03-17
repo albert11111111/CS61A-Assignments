@@ -1,5 +1,7 @@
 """Typing test implementation"""
 
+from readline import set_completion_display_matches_hook
+from sqlite3.dbapi2 import threadsafety
 from utils import (
     lower,
     split,
@@ -37,7 +39,14 @@ def pick(paragraphs, select, k):
     ''
     """
     # BEGIN PROBLEM 1
-    "*** YOUR CODE HERE ***"
+    i = 0
+    result = {}
+    for s in paragraphs:
+        if select(s):
+            result[i] = s
+            i = i + 1
+    return result.get(k, '')
+
     # END PROBLEM 1
 
 
@@ -57,7 +66,13 @@ def about(subject):
     assert all([lower(x) == x for x in subject]), "subjects should be lowercase."
 
     # BEGIN PROBLEM 2
-    "*** YOUR CODE HERE ***"
+    def insbjects(enter):
+       enterlist = split(remove_punctuation(enter.lower()))
+       for word in enterlist:
+        if word in subject:
+            return True
+       return False
+    return insbjects 
     # END PROBLEM 2
 
 
@@ -86,8 +101,21 @@ def accuracy(typed, source):
     """
     typed_words = split(typed)
     source_words = split(source)
+    rightnum = 0
     # BEGIN PROBLEM 3
-    "*** YOUR CODE HERE ***"
+    lenthtyped = len(typed_words)
+    lenthsource = len(source_words)
+    if lenthtyped == 0:
+        if lenthsource == 0:
+            return 100.0
+        else:
+            return 0.0
+    minlenth = min(lenthtyped, lenthsource)
+    for i in range(minlenth):
+        if(typed_words[i] == source_words[i]):
+            rightnum += 1
+    return (rightnum / lenthtyped) * 100
+    
     # END PROBLEM 3
 
 
@@ -104,8 +132,9 @@ def wpm(typed, elapsed):
     2.0
     """
     assert elapsed > 0, "Elapsed time must be positive"
+    return (len(typed)/5) / (elapsed/60)
     # BEGIN PROBLEM 4
-    "*** YOUR CODE HERE ***"
+    
     # END PROBLEM 4
 
 
@@ -166,8 +195,20 @@ def autocorrect(typed_word, word_list, diff_function, limit):
     'testing'
     """
     # BEGIN PROBLEM 5
-    "*** YOUR CODE HERE ***"
-    # END PROBLEM 5
+    if typed_word in word_list:
+        return typed_word
+    min_index = 0
+    min_diff = diff_function(typed_word, word_list[0], limit)
+    for i in range(1, len(word_list)):
+        m = diff_function(typed_word, word_list[i], limit)
+        if m < min_diff:
+            min_diff = m
+            min_index = i
+    if min_diff <= limit :
+        return word_list[min_index]
+    else:
+        return typed_word
+         # END PROBLEM 5
 
 
 def furry_fixes(typed, source, limit):
@@ -193,8 +234,23 @@ def furry_fixes(typed, source, limit):
     5
     """
     # BEGIN PROBLEM 6
-    assert False, 'Remove this line'
-    # END PROBLEM 6
+   # Base Case 1: 提前终止优化（重要！）
+    # 如果 limit 小于 0，说明修改次数已经超标，直接返回一个大于原来 limit 的值即可
+    if limit < 0:
+        return 1 # 只要返回任何大于 0 的数，配合外层的递归累加，最终结果就会 > 初始 limit
+        
+    # Base Case 2: 其中一个字符串为空
+    if len(typed) == 0 or len(source) == 0:
+        return len(typed) + len(source)
+    
+    # Recursive Steps: 每次只处理首字母，剩下的切片 [1:] 递归
+    if typed[0] == source[0]:
+        # 首字母一样，不需要修改，直接查剩下的，limit 额度不变
+        return furry_fixes(typed[1:], source[1:], limit)
+    else:
+        # 首字母不同，产生 1 次修改。加上剩下的部分，同时 limit 额度减 1
+        return 1 + furry_fixes(typed[1:], source[1:], limit - 1)
+            # END PROBLEM 6
 
 
 def minimum_mewtations(typed, source, limit):
@@ -214,22 +270,27 @@ def minimum_mewtations(typed, source, limit):
     >>> minimum_mewtations("ckiteus", "kittens", big_limit) # ckiteus -> kiteus -> kitteus -> kittens
     3
     """
-    assert False, 'Remove this line'
-    if ___________: # Base cases should go here, you may add more base cases as needed.
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
-    # Recursive cases should go below here
-    if ___________: # Feel free to remove or add additional cases
-        # BEGIN
-        "*** YOUR CODE HERE ***"
+    if limit < 0:  # 超过限制                                                                      
+        return 1                                                                        
+                                                                                                     
+    if typed == source:  # 两个字符串相同                                                          
+        return 0      
+
+    if len(typed) == 0:  # typed 为空，需要添加所有 source 的字符                                  
+        return len(source)                                                                         
+                                                                                                     
+    if len(source) == 0:  # source 为空，需要删除所有 typed 的字符                                 
+        return len(typed)                                                                          
+                                                                                                     
+    if typed[0] == source[0]:  # 首字符相同，不需要操作                                            
+        return minimum_mewtations(typed[1:], source[1:], limit)      
         # END
     else:
-        add = ... # Fill in these lines
-        remove = ...
-        substitute = ...
+        add = 1 + minimum_mewtations(typed, source[1:], limit - 1)
+        remove = 1 + minimum_mewtations(typed[1:], source, limit - 1)
+        substitute = 1 + minimum_mewtations(typed[1:], source[1:], limit - 1)
         # BEGIN
-        "*** YOUR CODE HERE ***"
+        return min(add, remove, substitute)
         # END
 
 
@@ -275,7 +336,17 @@ def report_progress(typed, source, user_id, upload):
     0.2
     """
     # BEGIN PROBLEM 8
-    "*** YOUR CODE HERE ***"
+    correct = 0
+    minindex = min(len(typed), len(source))
+    for i in range(minindex):
+        if typed[i] == source[i]:
+            correct += 1
+        else:
+            break
+    result = correct / len(source)
+    dic = {'id': user_id, 'progress': result}
+    upload(dic)
+    return result
     # END PROBLEM 8
 
 
@@ -299,7 +370,12 @@ def time_per_word(words, timestamps_per_player):
     """
     tpp = timestamps_per_player  # A shorter name (for convenience)
     # BEGIN PROBLEM 9
-    times = []  # You may remove this line
+    times = []
+    for i in range(len(tpp)):
+        little_list = []
+        for j in range(len(tpp[i]) - 1):
+            little_list.append(tpp[i][j+1] - tpp[i][j])
+        times.append(little_list)
     # END PROBLEM 9
     return {'words': words, 'times': times}
 
@@ -326,7 +402,30 @@ def fastest_words(words_and_times):
     player_indices = range(len(times))  # contains an *index* for each player
     word_indices = range(len(words))    # contains an *index* for each word
     # BEGIN PROBLEM 10
-    "*** YOUR CODE HERE ***"
+    result = [[] for _ in player_indices] 
+
+    # 2. 逐个裁判每一个单词 (i 是当前单词的索引)
+    for i in word_indices:
+        
+        # --- 开始为第 i 个单词寻找最快玩家 ---
+        
+        # 假设当前单词最快的玩家是 0 号玩家
+        fastest_player = 0
+        min_time = times[0][i]
+        
+        # 遍历所有玩家 (j 是当前正在比较的玩家的索引)
+        for j in player_indices:
+            # 如果玩家 j 打这个词的时间，比目前的最小时间还要短
+            if times[j][i] < min_time:
+                # 更新最快玩家和最小时间
+                fastest_player = j
+                min_time = times[j][i]
+                
+        # 找完了！把当前单词 (words[i]) 放进最快玩家 (fastest_player) 的篮子里
+        result[fastest_player].append(words[i])
+        
+    return result
+    # END PROBLEM 10
     # END PROBLEM 10
 
 
