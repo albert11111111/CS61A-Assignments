@@ -53,12 +53,12 @@ HW_SOURCE_FILE=__file__
 def planet(mass):
     """Construct a planet of some mass."""
     assert mass > 0
-    "*** YOUR CODE HERE ***"
+    return ['planet', mass]
 
 def mass(p):
     """Select the mass of a planet."""
     assert is_planet(p), 'must call mass on a planet'
-    "*** YOUR CODE HERE ***"
+    return p[1]
 
 def is_planet(p):
     """Whether p is a planet."""
@@ -110,7 +110,17 @@ def balanced(m):
     >>> check(HW_SOURCE_FILE, 'balanced', ['Index'])
     True
     """
-    "*** YOUR CODE HERE ***"
+    
+    if is_planet(m):
+        return True
+    else:
+        left_arm = left(m)
+        right_arm = right(m)
+        left_torque = length(left_arm) * total_mass(end(left_arm))
+        right_torque = length(right_arm) * total_mass(end(right_arm))
+        return (left_torque == right_torque and
+                balanced(end(left_arm)) and
+                balanced(end(right_arm)))
 
 
 def berry_finder(t):
@@ -130,7 +140,10 @@ def berry_finder(t):
     >>> berry_finder(t)
     True
     """
-    "*** YOUR CODE HERE ***"
+    if label(t) == 'berry':
+        return True
+    else:
+        return any(berry_finder(b) for b in branches(t))
 
 
 HW_SOURCE_FILE=__file__
