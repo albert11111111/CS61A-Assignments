@@ -9,7 +9,12 @@ def hailstone(n):
     >>> next(hail_gen)
     1
     """
-    "*** YOUR CODE HERE ***"
+    hail = [n]
+    def next(hail):
+      if hail[0] == 1:
+        return hail[0]
+      elif hail[0] % 2 == 0:
+        
 
 
 def merge(a, b):
