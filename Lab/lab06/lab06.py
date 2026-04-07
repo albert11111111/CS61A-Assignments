@@ -6,7 +6,7 @@ class Transaction:
 
     def changed(self):
         """Return whether the transaction resulted in a changed balance."""
-        "*** YOUR CODE HERE ***"
+        return not self.before == self.after
 
     def report(self):
         """Return a string describing the transaction.
@@ -20,7 +20,10 @@ class Transaction:
         """
         msg = 'no change'
         if self.changed():
-            "*** YOUR CODE HERE ***"
+            if self.after > self.before:
+                return str(self.id) + ': ' + 'increased ' + str(self.before) + '->' + str(self.after)
+            else:
+                return str(self.id) + ': ' + 'decreased ' + str(self.before) + '->' + str(self.after)
         return str(self.id) + ': ' + msg
 
 class BankAccount:
@@ -67,12 +70,16 @@ class BankAccount:
     def __init__(self, account_holder):
         self.balance = 0
         self.holder = account_holder
+        self.times = 0
+        self.transactions = []
 
     def deposit(self, amount):
         """Increase the account balance by amount, add the deposit
         to the transaction history, and return the new balance.
         """
         self.balance = self.balance + amount
+        self.transactions.append(Transaction(self.times, self.balance - amount, self.balance))
+        self.times += 1
         return self.balance
 
     def withdraw(self, amount):
@@ -80,8 +87,12 @@ class BankAccount:
         to the transaction history, and return the new balance.
         """
         if amount > self.balance:
+            self.transactions.append(Transaction(self.times, self.balance, self.balance))
+            self.times += 1
             return 'Insufficient funds'
         self.balance = self.balance - amount
+        self.transactions.append(Transaction(self.times, self.balance + amount, self.balance))
+        self.times += 1
         return self.balance
 
 
@@ -108,14 +119,18 @@ class Server:
         """Append the email to the inbox of the client it is addressed to.
             email is an instance of the Email class.
         """
-        ____.inbox.append(email)
+        # 从 clients 字典中根据收件人名字找到对应的 Client 对象
+        # 然后将邮件添加到该 Client 的 inbox 列表中
+        self.clients[email.recipient_name].inbox.append(email)
 
     def register_client(self, client):
-        """Add a client to the clients mapping (which is a 
+        """Add a client to the clients mapping (which is a
         dictionary from client names to client instances).
             client is an instance of the Client class.
         """
-        ____[____] = ____
+        # 将客户端的名字作为 key，客户端对象本身作为 value
+        # 存入 clients 字典，建立"名字 -> 客户端"的映射关系
+        self.clients[client.name] = client
 
 class Client:
     """A client has a server, a name (str), and an inbox (list).
@@ -135,14 +150,20 @@ class Client:
     'Alice'
     """
     def __init__(self, server, name):
+        # 初始化空列表，用于存储收到的邮件
         self.inbox = []
+        # 保存服务器对象的引用，后续用于发送邮件
         self.server = server
+        # 保存客户端的名字
         self.name = name
-        server.register_client(____)
+        # 调用服务器的 register_client 方法，将自己注册到服务器中
+        server.register_client(self)
 
     def compose(self, message, recipient_name):
         """Send an email with the given message to the recipient."""
-        email = Email(message, ____, ____)
+        # 创建邮件对象：包含消息内容、发送者(self)、收件人名字
+        email = Email(message, self, recipient_name)
+        # 调用服务器的 send 方法，将邮件发送给指定的收件人
         self.server.send(email)
 
 
@@ -179,12 +200,13 @@ class Mint:
 
     def __init__(self):
         self.update()
+        self.year = Mint.present_year
 
     def create(self, coin):
-        "*** YOUR CODE HERE ***"
+        return coin(self.year)
 
     def update(self):
-        "*** YOUR CODE HERE ***"
+        self.year = Mint.present_year
 
 class Coin:
     cents = None # will be provided by subclasses, but not by Coin itself
@@ -193,7 +215,7 @@ class Coin:
         self.year = year
 
     def worth(self):
-        "*** YOUR CODE HERE ***"
+        return self.cents + max(0, Mint.present_year - self.year - 50)
 
 class Nickel(Coin):
     cents = 5
