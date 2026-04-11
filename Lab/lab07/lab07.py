@@ -39,8 +39,12 @@ class Account:
     def time_to_retire(self, amount):
         """Return the number of years until balance would grow to amount."""
         assert self.balance > 0 and amount > 0 and self.interest > 0
-        "*** YOUR CODE HERE ***"
-
+        time = 0
+        money = self.balance
+        while money < amount:
+            time += 1
+            money = money * (1 + self.interest)
+        return time
 
 class FreeChecking(Account):
     """A bank account that charges for withdrawals, but the first two are free!
@@ -69,7 +73,23 @@ class FreeChecking(Account):
     withdraw_fee = 1
     free_withdrawals = 2
 
-    "*** YOUR CODE HERE ***"
+    def __init__(self, account_holder):
+        self.balance = 0
+        self.holder = account_holder
+        self.time = 0
+    def withdraw(self, amount):
+        self.time += 1
+        if self.time <= self.free_withdrawals:
+            if self.balance - amount >= 0:
+                self.balance = self.balance - amount
+            else:
+                return 'Insufficient funds'
+        else:
+            if self.balance - amount - self.withdraw_fee >= 0: 
+                self.balance = self.balance - amount - self.withdraw_fee
+            else:
+                return 'Insufficient funds'
+        return self.balance
 
 
 def without(s, i):
@@ -85,7 +105,14 @@ def without(s, i):
     >>> without(s, 4) is not s  # Make sure a copy is created
     True
     """
-    "*** YOUR CODE HERE ***"
+    if s is Link.empty:
+        return Link.empty
+    elif i == 0:
+        return without(s.rest, -1)
+    else:
+        return Link(s.first, without(s.rest, i - 1))
+
+
 
 
 def duplicate_link(s, val):
@@ -104,7 +131,19 @@ def duplicate_link(s, val):
     >>> z
     Link(1, Link(2, Link(2, Link(2, Link(2, Link(3))))))
     """
-    "*** YOUR CODE HERE ***"
+    # if s is Link.empty:
+    #     return Link.empty
+    # if s.first == val:
+    #     return Link(s.first, Link(s.first, duplicate_link(s.rest, val)))
+    # else:
+    #     return Link(s.first, duplicate_link(s.rest, val))
+    curr = s
+    while curr is not Link.empty:
+        if curr.first == val:
+            curr.rest = Link(val, curr.rest)
+            curr = curr.rest.rest
+        else:
+            curr = curr.rest
 
 
 class Link:
