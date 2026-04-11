@@ -134,7 +134,12 @@ def store_digits(n):
     >>> cleaned = re.sub(r"#.*\\n", '', re.sub(r'"{3}[\s\S]*?"{3}', '', inspect.getsource(store_digits)))
     >>> print("Do not use str or reversed!") if any([r in cleaned for r in ["str", "reversed"]]) else None
     """
-    "*** 请在这里填写代码 ***"
+    def helper(n, tail):
+        if n == 0:
+            return tail
+        return helper(n // 10, Link(n % 10, tail))
+    return helper(n, Link.empty)
+
 
 
 def deep_map_mut(func, s):
@@ -155,7 +160,15 @@ def deep_map_mut(func, s):
     >>> print(link1)
     <9 <16> 25 36>
     """
-    "*** 请在这里填写代码 ***"
+
+
+    if s is Link.empty:
+        return 
+    if isinstance(s.first, Link):
+        deep_map_mut(func, s.first)
+    else:
+        s.first = func(s.first)
+    deep_map_mut(func, s.rest)
 
 
 def two_list(vals, counts):
@@ -174,7 +187,16 @@ def two_list(vals, counts):
     >>> c
     Link(1, Link(1, Link(3, Link(3, Link(2)))))
     """
-    "*** 请在这里填写代码 ***"
+    def extend(val, count, tail):
+        """建 count 个 val，后面接上 tail"""
+        if count == 0:
+            return tail
+        return Link(val, extend(val, count - 1, tail))
+
+    result = Link.empty
+    for i in range(len(vals) - 1, -1, -1):
+        result = extend(vals[i], counts[i], result)
+    return result
 
 
 class Link:
