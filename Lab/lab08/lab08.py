@@ -1,6 +1,9 @@
+from cProfile import label
+
+
 def cumulative_mul(t):
-    """Mutates t so that each node's label becomes the product of its own
-    label and all labels in the corresponding subtree rooted at t.
+    """就地修改树 t，使每个节点的 label 变为：
+    该节点原本的 label 与以该节点为根的整棵子树中所有 label 的乘积。
 
     >>> t = Tree(1, [Tree(3, [Tree(5)]), Tree(7)])
     >>> cumulative_mul(t)
@@ -11,12 +14,14 @@ def cumulative_mul(t):
     >>> otherTree
     Tree(5040, [Tree(60, [Tree(3), Tree(4), Tree(5)]), Tree(42, [Tree(7)])])
     """
-    "*** YOUR CODE HERE ***"
+    for x in t.branches:
+        cumulative_mul(x)
+        t.label = t.label * x.label
+    
 
 
 def prune_small(t, n):
-    """Prune the tree mutatively, keeping only the n branches
-    of each node with the smallest labels.
+    """对树进行原地剪枝：对每个节点只保留 label 最小的 n 个分支。
 
     >>> t1 = Tree(6)
     >>> prune_small(t1, 2)
@@ -31,18 +36,18 @@ def prune_small(t, n):
     >>> t3
     Tree(6, [Tree(1), Tree(3, [Tree(1), Tree(2)])])
     """
-    while ____:
-        largest = max(____, key=____)
+    while len(t.branches > n):
+        largest = max(t.branches , key = lambda b: b.label)
         t.branches.remove(largest)
     for b in t.branches:
-        ____
+        prune_small(b, n)
 
 
 def delete(t, x):
-    """Remove all nodes labeled x below the root within Tree t. When a non-leaf
-    node is deleted, the deleted node's children become children of its parent.
+    """删除树 t 中根节点以下所有 label 为 x 的节点。
+    当被删除的是非叶子节点时，该节点的子节点会提升为其父节点的子节点。
 
-    The root node will never be removed.
+    根节点永远不会被删除。
 
     >>> t = Tree(3, [Tree(2, [Tree(2), Tree(2)]), Tree(2), Tree(2, [Tree(2, [Tree(2), Tree(2)])])])
     >>> delete(t, 2)
@@ -58,27 +63,38 @@ def delete(t, x):
     Tree(1, [Tree(4), Tree(5), Tree(3, [Tree(6)]), Tree(6), Tree(7), Tree(8), Tree(4)])
     """
     new_branches = []
-    for _________ in ________________:
-        _______________________
+    for b in t.branches:
+        delete(b)
         if b.label == x:
-            __________________________________
+            new_branches.extend(b.branches)
         else:
-            __________________________________
-    t.branches = ___________________
+            new_branches.append(b)
+    t.branches = new_branches
 
 
 def max_path_sum(t):
-    """Return the maximum path sum of the tree.
+    """返回这棵树的最大路径和。
 
     >>> t = Tree(1, [Tree(5, [Tree(1), Tree(3)]), Tree(10)])
     >>> max_path_sum(t)
     11
     """
-    "*** YOUR CODE HERE ***"
+    if t.is_leaf():
+        return t.label
+    max_val = 0
+    for b in t.branches:
+        if max_val < t.label + max_path_sum(b):
+            max_val = t.label + max_path_sum(b)
+    return max_val
+
+    # if t.is_leaf():
+    #     return t.label
+    # return t.label + max(max_path_sum(b) for b in t.branches)
+
 
 
 class Tree:
-    """A tree has a label and a list of branches.
+    """一棵树由一个 label 和一个分支列表组成。
 
     >>> t = Tree(3, [Tree(2, [Tree(5)]), Tree(4)])
     >>> t.label
